@@ -1,13 +1,15 @@
 package br.ufmt.compilador.paula;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Token {
 
 	public static final int IDENT = 0;
 	public static final int NUMERO = 1;
-	public static final int ESPACO = 2;
-	public static final int SIMBOL = 3;
-	public static final int REAL = 4;
-	public static final int RESERVADA = 5;
+	public static final int SIMBOL = 2;
+	public static final int REAL = 3;
+	public static final int RESERVADA = 4;
 
 	private int tipo;
 	private String termo;
@@ -30,6 +32,13 @@ public class Token {
 
 	@Override
 	public String toString() {
-		return "Token [" + tipo + ", " + termo + "]";
+		Map<Integer, String> tipos = new HashMap<Integer, String>();
+		tipos.put(0, "Identificador");
+		tipos.put(1, "Número");
+		tipos.put(2, "Símbolo");
+		tipos.put(3, "Real");
+		tipos.put(4, "Reservada");
+
+		return "Token [" + tipos.get(tipo) + ", " + termo + "]";
 	}
 }
