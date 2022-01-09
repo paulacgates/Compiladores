@@ -29,10 +29,189 @@ public class Sintatico {
 		obtemSimbolo();
 		program();
 		if (simbolo == null) {
-			System.out.println("Tudo certo!");
+			System.out.println("Código gerado");
 			System.out.println(String.join("\n", pilhaComandos));
+			interpretacao();
+			System.out.println("Código executado");
 		} else {
 			throw new RuntimeException("Erro sintático esperado fim de cadeia encontrado: " + simbolo.getTermo());
+		}
+	}
+
+	public void interpretacao() {
+		System.out.println("Rodando código...");
+		List<Float> Dados = new ArrayList<>();
+		int s = 0;
+		for(int i = 0; i < pilhaComandos.size(); i++) {
+			String comando = pilhaComandos.get(i);
+			String operador = comando;
+
+			float argumento = 0;
+			if (comando.contains(" ")) {
+				int finalOperador = comando.indexOf(" ");
+				int inicioArgumento = comando.indexOf(" ") + 1;
+				operador = comando.substring(0, finalOperador);
+				argumento = Float.parseFloat(comando.substring(inicioArgumento));
+			}
+
+			switch (operador) {
+				case "INPP":
+					s = -1;
+					break;
+				case "PARA":
+					return;
+				case "CRCT":
+					s++;
+					Dados.add((float) argumento);
+					break;
+				case "CRVL":
+					s++;
+					Dados.add(Dados.get((int) argumento));
+					break;
+				case "SOMA":
+					Dados.set(s - 1, Dados.get(s - 1) + Dados.get(s));
+					Dados.remove(s);
+					s--;
+					break;
+				case "SUBT":
+					Dados.set(s - 1, Dados.get(s - 1) - Dados.get(s));
+					Dados.remove(s);
+					s--;
+					break;
+				case "MULT":
+					Dados.set(s - 1, Dados.get(s - 1) * Dados.get(s));
+					Dados.remove(s);
+					s--;
+					break;
+				case "DIVI":
+					Dados.set(s - 1, Dados.get(s - 1) / Dados.get(s));
+					Dados.remove(s);
+					s--;
+					break;
+				case "INVE":
+					Dados.set(s, - Dados.get(s));
+					break;
+				case "CPME":
+					if (Dados.get(s - 1) < Dados.get(s)) {
+						Dados.set(s - 1, (float) 1);
+					} else {
+						Dados.set(s - 1, (float) 0);
+					}
+
+					Dados.remove(s);
+					s--;
+					break;
+				case "CPMA":
+					if (Dados.get(s - 1) > Dados.get(s)) {
+						Dados.set(s - 1, (float) 1);
+					} else {
+						Dados.set(s - 1, (float) 0);
+					}
+
+					Dados.remove(s);
+					s--;
+					break;
+				case "CPIG":
+					if (Dados.get(s - 1).equals(Dados.get(s))) {
+						Dados.set(s - 1, (float) 1);
+					} else {
+						Dados.set(s - 1, (float) 0);
+					}
+
+					Dados.remove(s);
+					s--;
+					break;
+				case "CDES":
+					if (!Dados.get(s - 1).equals(Dados.get(s))) {
+						Dados.set(s - 1, (float) 1);
+					} else {
+						Dados.set(s - 1, (float) 0);
+					}
+
+					Dados.remove(s);
+					s--;
+					break;
+				case "CPMI":
+					if (Dados.get(s - 1) <= Dados.get(s)) {
+						Dados.set(s - 1, (float) 1);
+					} else {
+						Dados.set(s - 1, (float) 0);
+					}
+
+					Dados.remove(s);
+					s--;
+					break;
+				case "CMAI":
+					if (Dados.get(s - 1) >= Dados.get(s)) {
+						Dados.set(s - 1, (float) 1);
+					} else {
+						Dados.set(s - 1, (float) 0);
+					}
+
+					Dados.remove(s);
+					s--;
+					break;
+				case "ARMZ":
+					Dados.set((int) argumento, Dados.get(s));
+					Dados.remove(s);
+					s--;
+					break;
+				case "DSVI":
+					i = (int) argumento - 1;
+					break;
+				case "DSVF":
+					if (Dados.get(s) == 0) {
+						i = (int) argumento - 1;
+					}
+
+					Dados.remove(s);
+					s--;
+					break;
+				case "LEIT":
+					s++;
+					Scanner scan = new Scanner(System.in);
+					float num = scan.nextFloat();
+					Dados.add(num);
+					break;
+				case "IMPR":
+					System.out.println(Dados.get(s));
+
+					Dados.remove(s);
+					s--;
+					break;
+				case "ALME":
+					for(int j = 0; j < argumento; j++) {
+						Dados.add((float) 0);
+					}
+					s += argumento;
+					break;
+				case "PARAM":
+					s++;
+					Dados.add(Dados.get((int) argumento));
+					break;
+				case "PUSHER":
+					s++;
+					Dados.add((float) argumento);
+					break;
+				case "CHPR":
+					i = (int) argumento - 1;
+					break;
+				case "DESM":
+					for(; argumento > 0; argumento--) {
+						Dados.remove(s);
+						s--;
+					}
+					break;
+				case "RTPR":
+					i = (int) (float) Dados.get(s) - 1;
+
+					Dados.remove(s);
+					s--;
+					break;
+				default:
+					throw new RuntimeException("Operador não encontrado: " + simbolo.getTermo());
+			}
+
 		}
 	}
 
@@ -130,7 +309,7 @@ public class Sintatico {
 		} else if (isTermo("procedure")) {
 			code("DSVI", ":procedure");
 			dc_p();
-			replacePlaceholder(":procedure", Integer.toString(topoPilhaComandos));
+			replacePlaceholder(":procedure", Integer.toString(topoPilhaComandos + 1));
 		}
 	}
 
